@@ -1,0 +1,353 @@
+After the survived plane crash, you will be stuck on SQL Island for the time being. By making progress in the game, you will find a way to escape 
+from this island.
+
+Tables: 
+VILLAGE (villageid, name, chief)
+INHABITANT (personid, name, villageid, gender, job, gold, state)
+ITEM (item, owner)
+
+Oh dear, what happened? It seems that I am the only survivor of the air crash. Wow, there are some villages on this island.
+
+SELECT * FROM village
+
+villageid| name| chief 
+1	Monkeycity	1
+2	Cucumbertown	6
+3	Onionville	13
+
+--It seems there are a few people living in these villages. How can I see a list of all inhabitants?
+
+select * from inhabitant
+
+personid| name| villageid| gender| job| gold| state
+1	Paul Bakerman	1	m	baker	850	friendly
+2	Ernest Perry	3	m	weaponsmith	280	friendly
+3	Rita Ox	1	f	baker	350	friendly
+4	Carl Ox	1	m	merchant	250	friendly
+5	Dirty Dieter	3	m	smith	650	evil
+6	Gerry Slaughterer	2	m	butcher	4850	evil
+7	Peter Slaughterer	3	m	butcher	3250	evil
+8	Arthur Tailor	2	m	pilot	490	kidnapped
+9	Tiffany Drummer	1	f	baker	550	evil
+10	Peter Drummer	1	m	smith	600	friendly
+11	Dirty Diane	3	f	farmer	10	evil
+12	Otto Alexander	2	m	dealer	680	friendly
+13	Fred Dix	3	m	author	420	friendly
+14	Enrico Carpenter	3	m	weaponsmith	510	evil
+15	Helen Grasshead	2	f	dealer	680	friendly
+16	Ivy Hatter	1	f	dealer	770	evil
+17	Edward Grasshead	3	m	butcher	990	friendly
+18	Ryan Horse	3	m	blacksmith	390	friendly
+19	Ann Meaty	2	f	butcher	2280	friendly
+
+-- Woah, so many people!
+-- Man! I'm hungry. I will go and find a butcher to ask for some free sausages.
+
+select * from inhabitant where job = 'butcher'
+
+personid|	name|	villageid| gender| job| gold| state
+6	Gerry Slaughterer	2	m	butcher	4850	evil
+7	Peter Slaughterer	3	m	butcher	3250	evil
+17	Edward Grasshead	3	m	butcher	990	friendly
+19	Ann Meaty	2	f	butcher	2280	friendly
+
+-- There you are! Enjoy your meal! But take care of yourself. As long as you are unarmed, stay away from villains. 
+Not everyone on this island is friendly.
+-- Thank you, Edward! Okay, let's see who is friendly on this island...
+
+select *
+from INHABITANT
+where state = 'friendly';
+
+personid| name|	villageid| gender| job|	gold|	state
+1	Paul Bakerman	1	m	baker	850	friendly
+2	Ernest Perry	3	m	weaponsmith	280	friendly
+3	Rita Ox	1	f	baker	350	friendly
+4	Carl Ox	1	m	merchant	250	friendly
+10	Peter Drummer	1	m	smith	600	friendly
+12	Otto Alexander	2	m	dealer	680	friendly
+13	Fred Dix	3	m	author	420	friendly
+15	Helen Grasshead	2	f	dealer	680	friendly
+17	Edward Grasshead	3	m	butcher	990	friendly
+18	Ryan Horse	3	m	blacksmith	390	friendly
+19	Ann Meaty	2	f	butcher	2280	friendly
+
+-- There is no way around getting a sword for myself. I will now try to find a friendly weaponsmith to forge me one. 
+
+select *
+from INHABITANT
+where state = 'friendly'
+and job = 'weaponsmith';
+
+personid|	name|	villageid| gender| job|	gold|	state
+2	Ernest Perry	3	m	weaponsmith	280	friendly
+
+
+-- Oh, that does not look good. Maybe other friendly smiths can help you out, e.g. a blacksmith. 
+
+select *
+from INHABITANT
+where state = 'friendly'
+and job like '%smith';
+
+personid|	name|	villageid| gender| job|	gold|	state
+2	Ernest Perry	3	m	weaponsmith	280	friendly
+10	Peter Drummer	1	m	smith	600	friendly
+18	Ryan Horse	3	m	blacksmith	390	friendly
+
+-- That looks better! I will go and visit those smiths.
+
+-- Hi stranger! Where are you going? I'm Paul, I'm the major of Monkeycity. I will go ahead and register you as a citizen.
+
+INSERT INTO inhabitant (name, villageid, gender, job, gold, state) VALUES ('Stranger', 1, '?', '?', 0, '?')
+
+-- No need to call me stranger! What's my personid? 
+
+select personid
+from inhabitant
+where name = 'Stranger';
+
+personid
+20
+
+
+-- Hi Ernest! How much is a sword?
+-- I can offer to make you a sword for 150 gold. That's the cheapest you will find! How much gold do you have?
+
+select gold
+from inhabitant
+where name = 'Stranger';
+
+gold
+0
+
+-- Damn! No money, no fun. There has to be another option to earn gold other than going to work. 
+Maybe I could collect ownerless items and sell them! Can I make a list of all items that don't belong to anyone? 
+
+
+select *
+from item
+where owner is null;
+
+item|	owner
+teapot	null
+ring	null
+coffee cup	null
+bucket	null
+carton	null
+lightbulb	null
+
+-- So much cool stuff!
+-- Yay, a coffee cup. Let's collect it!
+
+update item set owner = 20 where item = 'coffee cup'
+
+-- Do you know a trick how to collect all the ownerless items?
+
+update item
+set owner = 20
+where owner is null;
+
+-- Now list all of the items I have!
+
+select * 
+from item
+where owner = 20;
+
+item|	owner
+teapot	20
+ring	20
+coffee cup	20
+bucket	20
+carton	20
+lightbulb	20
+
+-- Find a friendly inhabitant who is either a dealer or a merchant. Maybe they want to buy some of my items. 
+
+select * 
+from inhabitant
+where state = 'friendly'
+and (job = 'dealer' or job = 'merchant');
+
+personid|	name|	villageid|	gender|	job|	gold|	state
+4	Carl Ox	1	m	merchant	250	friendly
+12	Otto Alexander	2	m	dealer	680	friendly
+15	Helen Grasshead	2	f	dealer	680	friendly
+
+
+-- I'd like to get the ring and the teapot. The rest is nothing but scrap. Please give me the two items. My personid is 15.
+
+update item
+set owner = 15
+where item = 'ring' or item = 'teapot';
+
+-- Thank you!
+-- Here, some gold!
+
+UPDATE inhabitant SET gold = gold + 120 WHERE personid = 20
+
+-- Unfortunately, that's not enough gold to buy a sword. Seems like I do have to work after all. Maybe it's not a bad idea to change my name
+from Stranger to my real name before I will apply for a job.
+
+update inhabitant
+set name = 'Dinora'
+where personid = 20;
+
+-- Since baking is one of my hobbies, why not find a baker who I can work for?
+
+select * from inhabitant
+where job = 'baker'
+order by gold desc;
+
+personid|	name|	villageid|	gender|	job|	gold|	state
+1	Paul Bakerman	1	m	baker	850	friendly
+9	Tiffany Drummer	1	f	baker	550	evil
+3	Rita Ox	1	f	baker	350	friendly
+
+-- Aha, Paul! I know him!
+-- Hi, you again! So, Dinora is your name. I saw you want to work as a baker? Okay! You will be paid 1 gold for 100 bread rolls.
+-- (8 hours later...) Here, I made ten thousand bread rolls! I quit! This should be enough money to buy a sword. Let's see what happens with my gold balance.
+
+UPDATE inhabitant SET gold = gold + 100 - 150 WHERE personid = 20
+
+-- Here's your new sword, Donoro! Now you can go everywhere.
+
+INSERT INTO item (item, owner) VALUES ('sword', 20)
+
+-- Is there a pilot on this island by any chance? He could fly me home.
+
+select * 
+from inhabitant
+where job = 'pilot';
+
+personid|	name|	villageid|	gender|	job|	gold|	state
+8	Arthur Tailor	2	m	pilot	490	kidnapped
+
+-- Oh no, his state is 'kidnapped'.
+
+--Horrible, the pilot is held captive by Dirty Dieter! I will show you a trick how to find out the name of the village where Dirty Dieter lives.
+
+SELECT village.name FROM village, inhabitant WHERE village.villageid = inhabitant.villageid AND inhabitant.name = 'Dirty Dieter'
+
+name
+Onionville
+
+-- Thanks! I can use the join to find out the chief's name of the village Onionville. 
+
+select inhabitant.name
+from village, inhabitant
+where chief = personid
+and village.name = 'Onionville';
+
+name
+Fred Dix
+
+-- I've got it! I will visit Fred and ask him about Dirty Dieter and the pilot.
+-- Um, how many inhabitants does Onionville have?
+
+SELECT COUNT(*) FROM inhabitant, village WHERE village.villageid = inhabitant.villageid AND village.name = 'Onionville'
+
+COUNT(*)
+8
+
+-- Hello Dinora, the pilot is held captive by Dirty Dieter in his sister's house. Shall I tell you how many women there are in Onionville? 
+Nah, you can figure it out by yourself!
+
+select count(*)
+from inhabitant
+where gender = 'f'
+and villageid = 3;
+
+count(*)
+1
+
+-- Oh, only one woman. What's her name?
+
+select name
+from inhabitant
+where gender = 'f'
+and villageid = 3;
+
+name
+Dirty Diane
+
+-- Let's go!
+
+-- Dinora, if you hand me over the entire property of our nearby village Cucumbertown, I will release the pilot. 
+I will show you now what this property consists of.
+
+SELECT SUM(inhabitant.gold) FROM inhabitant, village WHERE village.villageid = inhabitant.villageid AND village.name = 'Cucumbertown'
+
+SUM(inhabitant.gold)
+8980
+
+-- Oh no, baking bread alone can't solve my problems. If I continue working and selling items though, I could earn more gold than the worth of
+gold inventories of all bakers, dealers and merchants together. How much gold is that?
+
+select SUM(gold)
+from inhabitant
+where job = 'baker' 
+or job = 'dealer' 
+or job = 'merchant'; 
+
+SUM(gold)
+4130
+
+-- That's not enough.
+-- Let's have a look at how much average gold people own, depending on their job.
+
+SELECT job, SUM(inhabitant.gold), AVG(inhabitant.gold) FROM inhabitant GROUP BY job ORDER BY AVG(inhabitant.gold)
+
+job|	SUM(inhabitant.gold)|	AVG(inhabitant.gold)
+farmer	10	10.0
+?	70	70.0
+merchant	250	250.0
+blacksmith	390	390.0
+weaponsmith	790	395.0
+author	420	420.0
+pilot	490	490.0
+baker	1750	583.333333333333
+smith	1250	625.0
+dealer	2130	710.0
+butcher	11370	2842.5
+
+
+-- Very interesting: For some reason, butchers own the most gold. How much gold do different inhabitants have on average, depending on their state 
+(friendly, ...)?
+
+
+select state, avg(inhabitant.gold)
+from inhabitant
+group by state;
+
+state|	avg(inhabitant.gold)
+?	70.0
+evil	1512.85714285714
+friendly	706.363636363636
+kidnapped	490.0
+
+-- Ok, so the only way is to mug the villains.
+-- Or I might as well go ahead and just kill Dirty Dieter with my sword!
+
+DELETE FROM inhabitant WHERE name = 'Dirty Dieter'
+
+-- Heeeey! Now I'm very angry! What will you do next, Dinora?
+
+delete from inhabitant
+where name = 'Dirty Diane';
+
+-- Yeah! Now I release the pilot!
+
+update inhabitant
+set state = 'friendly'
+where name = 'Arthur Tailor';
+
+-- Thank's for releasing me, Dinora! I will fly you home!
+
+UPDATE inhabitant SET state = 'emigrated' WHERE personid = 20
+
+-- I take my sword, some gold and lots of useless items with me as a souvenir. What a big adventure!
+
+
+
+
